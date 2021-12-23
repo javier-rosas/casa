@@ -10,9 +10,7 @@ def opt_in_app(client, private_key, index):
 
     # get node suggested parameters
     params = client.suggested_params()
-    # comment out the next two (2) lines to use suggested fees
-    params.flat_fee = True
-    params.fee = 1000
+
 
     # create unsigned transaction
     txn = transaction.ApplicationOptInTxn(sender, params, index)
@@ -30,6 +28,7 @@ def opt_in_app(client, private_key, index):
     # display results
     transaction_response = client.pending_transaction_info(tx_id)
     print("OptIn to app-id:", transaction_response["txn"]["txn"]["apid"])
+
 
 
 
