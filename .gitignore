@@ -130,3 +130,7 @@ dmypy.json
 
 # private_key file 
 private_key.py
+
+# jupyter notebook DS_Store
+
+.DS_Store
