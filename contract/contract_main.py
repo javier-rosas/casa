@@ -1,4 +1,6 @@
 # This example is provided for informational purposes only and has not been audited for security.
+import sys
+sys.path.append("..")
 
 from pyteal import *
 
@@ -8,7 +10,6 @@ def approval_program():
 
     add_pool = Seq([
 
-        add_pool(),
         Return(Int(1))
 
     ])
@@ -20,7 +21,6 @@ def approval_program():
     '''
     borrow = Seq([
 
-        borrow_func(),
         Return(Int(1))
 
     ])
@@ -31,7 +31,6 @@ def approval_program():
     '''
     deposit = Seq([
 
-        deposit_func(), 
         Return(Int(1))
 
     ])
@@ -92,7 +91,7 @@ def approval_program():
     ON UPDATE: 
         - Check if the sender is the creator of the applicaiton  
     '''
-    handle_updateapp = Return(is_creator)
+    handle_updateapp = Return(Int(0))
 
 
 

@@ -1,11 +1,24 @@
 from algosdk.future import transaction
 from algosdk import account
 from pyteal import compileTeal, Mode
+import sys
+import os
 
 
+# relative imports 
 
-from .helper_functions import wait_for_confirmation, get_private_key_from_mnemonic, compile_program, read_global_state
-from ..contract.contract_main import approval_program, clear_state_program
+curr_dir = os.getcwd()
+
+sys.path.append(curr_dir)
+from setup.helper_functions import wait_for_confirmation, get_private_key_from_mnemonic, compile_program, read_global_state
+sys.path.remove(curr_dir)
+
+
+sys.path.append(curr_dir)
+from contract.contract_main import approval_program, clear_state_program
+sys.path.remove(curr_dir)
+
+
 
 
 # create new application
