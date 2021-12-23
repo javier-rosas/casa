@@ -32,6 +32,10 @@ def wait_for_confirmation(client, txid):
     return txinfo
 
 
+# convert 64 bit integer i to byte string
+def intToBytes(i):
+    return i.to_bytes(8, "big")
+
 
 def wait_for_round(client, round):
     last_round = client.status().get("last-round")

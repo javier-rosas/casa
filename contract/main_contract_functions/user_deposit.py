@@ -6,7 +6,6 @@ DEPOSIT ALGOS FUNCTION:
 @Subroutine(TealType.none)
 def deposit_func():
 
-
     # ASSET_ID
     asset_id = Gtxn[0].application_args[1]
 

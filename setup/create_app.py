@@ -1,14 +1,16 @@
 from algosdk.future import transaction
 from algosdk import account
 from pyteal import compileTeal, Mode
+from algosdk.v2client import algod
 
 
-from .helper_functions import wait_for_confirmation, get_private_key_from_mnemonic, compile_program
+
+from .helper_functions import wait_for_confirmation, get_private_key_from_mnemonic, compile_program, read_global_state
 from ..contract.contract_main import approval_program, clear_state_program
 
 
 # create new application
-def create_app(
+def helper(
     client,
     private_key,
     approval_program,
@@ -59,22 +61,18 @@ def create_app(
     return app_id
 
 
-def main():
-    # initialize an algodClient
-    algod_address = "http://localhost:4001"
-    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    algod_client = algod.AlgodClient(algod_token, algod_address)
+def create_app(algod_client, creator_mnemonic):
 
     # define private keys
     creator_private_key = get_private_key_from_mnemonic(creator_mnemonic)
 
     # declare application state storage (immutable)
     local_ints = 6
-    local_bytes = 6
+    local_bytes = 0
     global_ints = (
-        0  # 4 for setup + 20 for choices. Use a larger number for more choices.
+        1  # 4 for setup + 20 for choices. Use a larger number for more choices.
     )
-    global_bytes = 0
+    global_bytes = 3
     global_schema = transaction.StateSchema(global_ints, global_bytes)
     local_schema = transaction.StateSchema(local_ints, local_bytes)
 
@@ -104,7 +102,7 @@ def main():
     ]
 
     # create new application
-    app_id = create_app(
+    app_id = helper(
         algod_client,
         creator_private_key,
         approval_program_compiled,
@@ -114,5 +112,13 @@ def main():
         app_args,
     )
 
-if __name__ == "__main__":
-    main()
+    # read global state of application
+    print(
+        "Global state:",
+        read_global_state(
+            algod_client, account.address_from_private_key(creator_private_key), app_id
+        ),
+    )
+
+    return app_id
+

@@ -10,4 +10,3 @@ def generate_algorand_keypair():
     return address, mnemonic.from_private_key(private_key)
 
 
-generate_algorand_keypair()
