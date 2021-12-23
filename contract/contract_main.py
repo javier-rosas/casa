@@ -1,6 +1,5 @@
-# This example is provided for informational purposes only and has not been audited for security.
-import sys
-sys.path.append("..")
+# This version has not been audited for security.
+
 
 from pyteal import *
 
@@ -43,12 +42,17 @@ def approval_program():
             2) Borrow 
             3) Cash out 
     '''
+    '''
     handle_noop = Cond(
         [       Txn.application_args[0] == Bytes("add_pool"),  add_pool       ],
         [       Txn.application_args[0] == Bytes("user_deposit"), deposit       ],
         [       Txn.application_args[0] == Bytes("borrower_cashout"),  borrow       ],
         
     )
+
+    '''
+    handle_noop = Return(Int(1))
+    
 
 
   
@@ -58,9 +62,7 @@ def approval_program():
     '''
     on_creation = Seq([
         
-        Assert(Txn.application_args.length() == Int(1)),
-
-        App.globalPut(Bytes("Creator"), Txn.sender()),
+        #App.globalPut(Bytes("Creator"), Txn.sender()),
 
         Return(Int(1))
     ])
@@ -83,7 +85,7 @@ def approval_program():
     ON CLOSEOUT: 
         - Return 0
     '''
-    handle_closeout = Return(Int(0))
+    handle_closeout = Return(Int(1))
 
 
 
@@ -91,7 +93,7 @@ def approval_program():
     ON UPDATE: 
         - Check if the sender is the creator of the applicaiton  
     '''
-    handle_updateapp = Return(Int(0))
+    handle_updateapp = Return(Int(1))
 
 
 
@@ -99,7 +101,7 @@ def approval_program():
     ON DELETE:
         - Does not do anything
     '''
-    handle_deleteapp = Return(Int(0))
+    handle_deleteapp = Return(Int(1))
 
 
 
@@ -123,7 +125,7 @@ CLEAR STATE PROGRAM:
     - Returns 0
 '''
 def clear_state_program():
-    program = Return(Int(0))
+    program = Return(Int(1))
     return program
 
 

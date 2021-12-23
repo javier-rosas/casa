@@ -39,9 +39,7 @@ def helper(
 
     # get node suggested parameters
     params = client.suggested_params()
-    # comment out the next two (2) lines to use suggested fees
-    params.flat_fee = True
-    params.fee = 1000
+
 
     # create unsigned transaction
     txn = transaction.ApplicationCreateTxn(
@@ -82,7 +80,7 @@ def create_app(algod_client, creator_mnemonic):
     local_ints = 6
     local_bytes = 0
     global_ints = (
-        1  # 4 for setup + 20 for choices. Use a larger number for more choices.
+        1
     )
     global_bytes = 3
     global_schema = transaction.StateSchema(global_ints, global_bytes)
@@ -109,9 +107,7 @@ def create_app(algod_client, creator_mnemonic):
     )
 
     # create list of bytes for app args
-    app_args = [
-        
-    ]
+    app_args = []
 
     # create new application
     app_id = helper(
@@ -133,4 +129,5 @@ def create_app(algod_client, creator_mnemonic):
     )
 
     return app_id
+
 
