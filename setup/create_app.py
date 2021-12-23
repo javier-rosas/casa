@@ -1,7 +1,6 @@
 from algosdk.future import transaction
 from algosdk import account
 from pyteal import compileTeal, Mode
-from algosdk.v2client import algod
 
 
 
