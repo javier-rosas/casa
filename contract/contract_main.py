@@ -129,13 +129,11 @@ def clear_state_program():
     return program
 
 
-
-
 if __name__ == "__main__":
-    with open("casa_approval.teal", "w") as f:
+    with open("contract/raw_teal/casa_approval.teal", "w") as f:
         compiled = compileTeal(approval_program(), mode=Mode.Application, version=5)
         f.write(compiled)
 
-    with open("casa_clear.teal", "w") as f:
+    with open("contract/raw_teal/casa_clear.teal", "w") as f:
         compiled = compileTeal(clear_state_program(), mode=Mode.Application, version=5)
         f.write(compiled)
