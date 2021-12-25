@@ -10,7 +10,7 @@ import os
 curr_dir = os.getcwd()
 
 sys.path.append(curr_dir)
-from setup.helper_functions import wait_for_confirmation, get_private_key_from_mnemonic, compile_program, read_global_state
+from setup.helper_functions import wait_for_confirmation, compile_program, read_global_state
 sys.path.remove(curr_dir)
 
 
@@ -71,10 +71,7 @@ def helper(
     return app_id
 
 
-def create_app(algod_client, creator_mnemonic):
-
-    # define private keys
-    creator_private_key = get_private_key_from_mnemonic(creator_mnemonic)
+def create_app(algod_client, creator_private_key):
 
     # declare application state storage (immutable)
     local_ints = 6

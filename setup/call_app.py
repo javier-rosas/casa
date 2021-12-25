@@ -25,5 +25,7 @@ def call_app(client, private_key, index, app_args):
     client.send_transactions([signed_txn])
 
     # await confirmation
-    wait_for_confirmation(client, tx_id)
+    result = wait_for_confirmation(client, tx_id)
+
+    return result
 

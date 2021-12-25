@@ -3,6 +3,9 @@ import base64
 from algosdk import mnemonic, encoding
 
 
+
+
+
 # helper function to compile program source
 def compile_program(client, source_code):
     compile_response = client.compile(source_code)
@@ -118,3 +121,27 @@ def read_global_state(client, addr, app_id):
     return {}
 
     
+# returns true if the account has opted into the application, false otherwise
+def is_opted_in_app(algod_client, user_address, app_id):
+    account_info = algod_client.account_info(user_address)
+    for a in account_info['apps-local-state']:
+        if a['id'] == app_id:
+            return True
+    return False
+
+
+
+# https://developer.algorand.org/docs/get-details/asa/
+def is_opted_in_asset(algod_client, asset_id, private_key): 
+
+    account_info = algod_client.account_info(private_key)
+    holding = None
+    idx = 0
+    for my_account_info in account_info['assets']:
+        scrutinized_asset = account_info['assets'][idx]
+        idx = idx + 1    
+        if (scrutinized_asset['asset-id'] == asset_id):
+            holding = True
+            break
+    
+    return holding
