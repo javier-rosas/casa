@@ -1,6 +1,7 @@
 
 import base64 
 from algosdk import mnemonic, encoding
+from algosdk import account
 
 
 
@@ -145,3 +146,8 @@ def is_opted_in_asset(algod_client, asset_id, private_key):
             break
     
     return holding
+
+
+
+def address_from_private_key(private_key):
+    return account.address_from_private_key(private_key)
