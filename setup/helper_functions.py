@@ -50,14 +50,31 @@ def wait_for_round(client, round):
         print(f"Round {last_round}")
 
 
+def print_confirmation(result):
+    print("Result confirmed in round: {}".format(result['confirmed-round']))
 
-def print_log(log):
+
+def print_single_log(log):
+        
+    # integer
     strlog = base64.b64decode(log)
+    integer = int(strlog.hex(), 16)
 
-    strlog = strlog.decode('utf-8')
-    print(int(strlog.hex(), 16))
-    print(type(strlog))
-    #print("\t{}".format(strlog))
+    # string
+    string = base64.b64decode(log).decode('UTF-8')
+
+    # print
+    dictionary = {"Int": integer, "String": string}
+
+    print(dictionary) 
+
+
+def print_logs(result):
+    print("\nLogs:\n")
+    for log in result['logs']:
+        print_single_log(log)
+
+
 
 
 
@@ -151,3 +168,7 @@ def is_opted_in_asset(algod_client, asset_id, private_key):
 
 def address_from_private_key(private_key):
     return account.address_from_private_key(private_key)
+
+
+def mnemonic_to_public_key(mnemonic):
+    return mnemonic.to_public_key(mnemonic)
