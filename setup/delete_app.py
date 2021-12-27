@@ -9,9 +9,6 @@ def delete_app(client, private_key, index):
 
     # get node suggested parameters
     params = client.suggested_params()
-    # comment out the next two (2) lines to use suggested fees
-    params.flat_fee = True
-    params.fee = 1000
 
     # create unsigned transaction
     txn = transaction.ApplicationDeleteTxn(sender, params, index)

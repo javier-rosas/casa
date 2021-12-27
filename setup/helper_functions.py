@@ -1,10 +1,13 @@
 
 import base64 
+import sys
+import os
+
 from algosdk import mnemonic, encoding
 from algosdk import account
 from pyteal import compileTeal, Mode
-import sys
-import os
+
+
 
 
 # compiles and returns approval_program
@@ -204,16 +207,49 @@ def is_opted_in_asset(algod_client, asset_id, address):
     return holding
 
 
+def is_application_address(client, application_address):
+
+    account_info = client.account_info(application_address)
+
+    try:
+        auth_address = account_info['auth-addr']
+
+    except KeyError:
+        return False
+        
+    return auth_address == application_address
+
+
+
+def delete_all_apps_from_account(client, address, private_key, delete_app):
+
+    account_info = client.account_info(address)
+    for app in account_info['created-apps']: 
+        delete_app(client, private_key, app['id'])
+
+    print("Deleted all apps from account:", address)
+
+
+
+def delete_all_apps_from_account_except_last(client, address, private_key, delete_app):
+
+    account_info = client.account_info(address)
+    for app in account_info['created-apps'][:-1]: 
+        delete_app(client, private_key, app['id'])
+
+    print("Deleted all apps from account:", address)
+
+
 
 def print_account_info(client, address):
-    print(client.account_info(address))
+
+    import pprint
+    account_information = client.account_info(address)
+    pprint.pprint(account_information)
 
 
 
 def print_asset_holding(algodclient, account, assetid):
-    # note: if you have an indexer instance available it is easier to just use this
-    # response = myindexer.accounts(asset_id = assetid)
-    # then loop thru the accounts returned and match the account you are looking for
     import json
     account_info = algodclient.account_info(account)
     idx = 0
@@ -224,6 +260,7 @@ def print_asset_holding(algodclient, account, assetid):
             print("Asset ID: {}".format(scrutinized_asset['asset-id']))
             print(json.dumps(scrutinized_asset, indent=4))
             break
+
 
 def address_from_private_key(private_key):
     return account.address_from_private_key(private_key)
