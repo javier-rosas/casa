@@ -3,9 +3,9 @@ import base64
 import sys
 import os
 
-from algosdk import mnemonic, encoding
-from algosdk import account
+from algosdk import mnemonic, encoding, logic, account
 from pyteal import compileTeal, Mode
+
 
 
 
@@ -207,16 +207,18 @@ def is_opted_in_asset(algod_client, asset_id, address):
     return holding
 
 
-def is_application_address(client, application_address):
+def is_application_address(client, application_address, pool_address):
 
-    account_info = client.account_info(application_address)
+    account_info = client.account_info(pool_address)
 
     try:
         auth_address = account_info['auth-addr']
 
     except KeyError:
-        return False
         
+        return False
+
+
     return auth_address == application_address
 
 
@@ -237,7 +239,11 @@ def delete_all_apps_from_account_except_last(client, address, private_key, delet
     for app in account_info['created-apps'][:-1]: 
         delete_app(client, private_key, app['id'])
 
-    print("Deleted all apps from account:", address)
+    # application address
+    application_address = logic.get_application_address(account_info['created-apps'][-1]['id'])
+    app_id = account_info['created-apps'][-1]['id']
+
+    print("Deleted all apps from account:", address, "except last app_id:", app_id, "app_address:", application_address)
 
 
 
