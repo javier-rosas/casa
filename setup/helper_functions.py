@@ -2,7 +2,47 @@
 import base64 
 from algosdk import mnemonic, encoding
 from algosdk import account
+from pyteal import compileTeal, Mode
+import sys
+import os
 
+
+# compiles and returns approval_program
+def compile_approval_program(algod_client):
+
+    curr_dir = os.getcwd()
+
+    sys.path.append(curr_dir)
+    from contract.contract_main import approval_program
+    sys.path.remove(curr_dir)
+    
+    # get PyTeal approval program
+    approval_program_ast = approval_program()
+    # compile program to TEAL assembly
+    approval_program_teal = compileTeal(approval_program_ast, mode=Mode.Application, version=5)
+    # compile program to binary
+    approval_program_compiled = compile_program(algod_client, approval_program_teal)
+
+    return approval_program_compiled
+
+
+# compiles and returns clear_state_program
+def compile_clear_state_program(algod_client):
+
+    curr_dir = os.getcwd()
+
+    sys.path.append(curr_dir)
+    from contract.contract_main import clear_state_program
+    sys.path.remove(curr_dir)
+    
+   # get PyTeal clear state program
+    clear_state_program_ast = clear_state_program()
+    # compile program to TEAL assembly
+    clear_state_program_teal = compileTeal(clear_state_program_ast, mode=Mode.Application, version=5)
+    # compile program to binary
+    clear_state_program_compiled = compile_program(algod_client, clear_state_program_teal)
+
+    return clear_state_program_compiled
 
 
 
@@ -50,8 +90,10 @@ def wait_for_round(client, round):
         print(f"Round {last_round}")
 
 
+
 def print_confirmation(result):
     print("Result confirmed in round: {}".format(result['confirmed-round']))
+
 
 
 def print_single_log(log):
@@ -69,13 +111,11 @@ def print_single_log(log):
     print(dictionary) 
 
 
+
 def print_logs(result):
     print("\nLogs:\n")
     for log in result['logs']:
         print_single_log(log)
-
-
-
 
 
 def format_state(state):
