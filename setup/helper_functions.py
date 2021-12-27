@@ -13,7 +13,7 @@ def compile_approval_program(algod_client):
     curr_dir = os.getcwd()
 
     sys.path.append(curr_dir)
-    from contract.contract_main import approval_program
+    from contract.main import approval_program
     sys.path.remove(curr_dir)
     
     # get PyTeal approval program
@@ -32,7 +32,7 @@ def compile_clear_state_program(algod_client):
     curr_dir = os.getcwd()
 
     sys.path.append(curr_dir)
-    from contract.contract_main import clear_state_program
+    from contract.main import clear_state_program
     sys.path.remove(curr_dir)
     
    # get PyTeal clear state program
