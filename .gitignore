@@ -136,3 +136,6 @@ private_key.py
 
 # keys.json file 
 keys.json
+
+# .vscode 
+.vscode
