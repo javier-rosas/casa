@@ -190,10 +190,10 @@ def is_opted_in_app(algod_client, user_address, app_id):
 
 
 # https://developer.algorand.org/docs/get-details/asa/
-def is_opted_in_asset(algod_client, asset_id, private_key): 
+def is_opted_in_asset(algod_client, asset_id, address): 
 
-    account_info = algod_client.account_info(private_key)
-    holding = None
+    account_info = algod_client.account_info(address)
+    holding = False
     idx = 0
     for my_account_info in account_info['assets']:
         scrutinized_asset = account_info['assets'][idx]
@@ -201,10 +201,29 @@ def is_opted_in_asset(algod_client, asset_id, private_key):
         if (scrutinized_asset['asset-id'] == asset_id):
             holding = True
             break
-    
     return holding
 
 
+
+def print_account_info(client, address):
+    print(client.account_info(address))
+
+
+
+def print_asset_holding(algodclient, account, assetid):
+    # note: if you have an indexer instance available it is easier to just use this
+    # response = myindexer.accounts(asset_id = assetid)
+    # then loop thru the accounts returned and match the account you are looking for
+    import json
+    account_info = algodclient.account_info(account)
+    idx = 0
+    for my_account_info in account_info['assets']:
+        scrutinized_asset = account_info['assets'][idx]
+        idx = idx + 1        
+        if (scrutinized_asset['asset-id'] == assetid):
+            print("Asset ID: {}".format(scrutinized_asset['asset-id']))
+            print(json.dumps(scrutinized_asset, indent=4))
+            break
 
 def address_from_private_key(private_key):
     return account.address_from_private_key(private_key)
