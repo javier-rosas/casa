@@ -1,36 +1,46 @@
-from algosdk.future import transaction
-from algosdk import account
-from pyteal import compileTeal, Mode
 import sys
 import os
 
+from algosdk import logic
+from algosdk.future import transaction
+from algosdk.future.transaction import  MultisigTransaction
 
-# relative imports 
+
+
+
+# get current working directory
 curr_dir = os.getcwd()
 
+# setup/helper_functions.py imports 
 sys.path.append(curr_dir)
 from setup.helper_functions import (wait_for_confirmation, 
-                                    read_global_state, 
-                                    address_from_private_key, 
                                     compile_approval_program, 
                                     compile_clear_state_program)
+
 sys.path.remove(curr_dir)
+
+# setup/account_generation/generate_creator_multisig.py import multisig
+sys.path.append(curr_dir + '/setup/')
+from account_generation.get_creator_multisig import multisig
+sys.path.remove(curr_dir + '/setup/')
 
 
 
 # create new application
 def helper(
     client,
+    creator_address,
     private_key,
     approval_program,
     clear_program,
     global_schema,
     local_schema,
-    app_args,
     extra_pages
 ):
+
+  
     # define sender as creator
-    sender = account.address_from_private_key(private_key)
+    sender = creator_address
 
     # declare on_complete as NoOp
     on_complete = transaction.OnComplete.NoOpOC.real
@@ -41,6 +51,7 @@ def helper(
 
     # create unsigned transaction
     txn = transaction.ApplicationCreateTxn(
+            
         sender,
         params,
         on_complete,
@@ -48,29 +59,45 @@ def helper(
         clear_program,
         global_schema,
         local_schema,
-        app_args,
-        extra_pages
+        app_args=None,
+        accounts=None,
+        foreign_apps=None,
+        foreign_assets=None,
+        note=None,
+        lease=None,
+        rekey_to=None,
+        extra_pages=extra_pages,
     )
 
+    msig = multisig()
+    # create a SignedTransaction object
+    multisig_transaction = MultisigTransaction(txn, msig)
+
     # sign transaction
-    signed_txn = txn.sign(private_key)
-    tx_id = signed_txn.transaction.get_txid()
+    multisig_transaction.sign(private_key)
+    tx_id = multisig_transaction.transaction.get_txid()
 
     # send transaction
-    client.send_transactions([signed_txn])
+    client.send_transactions([multisig_transaction])
 
     # await confirmation
     wait_for_confirmation(client, tx_id)
 
-    # display results
+    # transaction response
     transaction_response = client.pending_transaction_info(tx_id)
+
+    # application id 
     app_id = transaction_response["application-index"]
-    print("Created new app-id:", app_id)
 
-    return app_id
+    # application address
+    application_address = logic.get_application_address(app_id)
 
 
-def create_app(algod_client, creator_private_key):
+    # return application_id and application_address
+    return (app_id, application_address)
+
+
+def create_app(algod_client, creator_address, creator_private_key):
 
     # declare application state storage (immutable)
     local_ints = 6
@@ -86,23 +113,17 @@ def create_app(algod_client, creator_private_key):
     clear_state_program_compiled = compile_clear_state_program(algod_client)
 
 
-    # create list of bytes for app args
-    app_args = []
-
     # create new application
     app_id = helper(
         algod_client,
+        creator_address,
         creator_private_key,
         approval_program_compiled,
         clear_state_program_compiled,
         global_schema,
         local_schema,
-        app_args,
         extra_pages=3
     )
-
-    # read global state of application
-    print( "Global state:", read_global_state( algod_client, address_from_private_key(creator_private_key), app_id) )
 
     return app_id
 
