@@ -74,19 +74,19 @@ def helper(
     client.send_transactions([multisig_transaction])
 
     # await confirmation
-    wait_for_confirmation(client, tx_id)
+    result = wait_for_confirmation(client, tx_id)
 
     # transaction response
     transaction_response = client.pending_transaction_info(tx_id)
 
-    # application id 
-    app_id = transaction_response["application-index"]
-
+  
     # application address
     application_address = logic.get_application_address(app_id)
 
+    print("app_id:", app_id, "with application address:", application_address, "was modified.")
+
     # return application_id and application_address
-    return (app_id, application_address)
+    return result
 
 
 def update_app(algod_client, creator_address, creator_private_key, app_id):
