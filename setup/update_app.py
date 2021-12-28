@@ -83,7 +83,7 @@ def helper(
     # application address
     application_address = logic.get_application_address(app_id)
 
-    print("app_id:", app_id, "with application address:", application_address, "was modified.")
+    print("Application was modified with app_id:", app_id, "and with application address:", application_address)
 
     # return application_id and application_address
     return result
