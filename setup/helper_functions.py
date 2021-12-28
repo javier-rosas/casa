@@ -78,6 +78,30 @@ def wait_for_confirmation(client, txid):
     )
     return txinfo
 
+#   Utility function used to print created asset for account and assetid
+def print_created_asset(algodclient, account, assetid):    
+    account_info = algodclient.account_info(account)
+    idx = 0
+    for my_account_info in account_info['created-assets']:
+        scrutinized_asset = account_info['created-assets'][idx]
+        idx = idx + 1       
+        if (scrutinized_asset['index'] == assetid):
+            print("Asset ID: {}".format(scrutinized_asset['index']))
+            print(json.dumps(my_account_info['params'], indent=4))
+            break
+
+
+
+def get_minted_asset_id(client, txid, creator_address, reserve_address):
+
+    try:
+        ptx = client.pending_transaction_info(txid)
+        asset_id = ptx["asset-index"]
+        print_created_asset(client, creator_address, asset_id)
+        print_asset_holding(client, reserve_address, asset_id)
+    except Exception as e:
+        print(e)
+
 
 # convert 64 bit integer i to byte string
 def intToBytes(i):
@@ -266,6 +290,8 @@ def print_asset_holding(algodclient, account, assetid):
             print("Asset ID: {}".format(scrutinized_asset['asset-id']))
             print(json.dumps(scrutinized_asset, indent=4))
             break
+
+
 
 
 def address_from_private_key(private_key):
