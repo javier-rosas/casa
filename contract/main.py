@@ -85,7 +85,7 @@ def approval_program():
     ON CLOSEOUT: 
         - Return 0
     '''
-    handle_closeout = Return(Int(1))
+    handle_closeout = Return(Int(0))
 
 
 
