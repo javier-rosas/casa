@@ -80,6 +80,7 @@ def wait_for_confirmation(client, txid):
 
 #   Utility function used to print created asset for account and assetid
 def print_created_asset(algodclient, account, assetid):    
+    import json
     account_info = algodclient.account_info(account)
     idx = 0
     for my_account_info in account_info['created-assets']:
@@ -140,9 +141,12 @@ def print_single_log(log):
 
 
 def print_logs(result):
-    print("\nLogs:\n")
-    for log in result['logs']:
-        print_single_log(log)
+    try:
+        print("\nLogs:\n")
+        for log in result['logs']:
+            print_single_log(log)
+    except KeyError: 
+        print("No logs during this runtime.")
 
 
 def format_state(state):
@@ -151,27 +155,33 @@ def format_state(state):
         key = item["key"]
         value = item["value"]
         try: 
-            
+
             formatted_key = base64.b64decode(key).decode("utf-8")
 
-        except Exception: 
-
+            
+        except UnicodeDecodeError: 
 
             formatted_key = base64.b64decode(key)
+
             lst = formatted_key.split(b' | ')
+
             key_32_bytes = lst[0]
             user_deposited = lst[1]
+            key_58_bytes = encoding.encode_address(key_32_bytes)
+            key_58_bytes  = key_58_bytes.encode()
+            formatted_key = key_58_bytes + b' | ' + user_deposited
 
-            key_32_bytes = encoding.encode_address(key_32_bytes)
-            key_32_bytes  = key_32_bytes.encode()
-            formatted_key = key_32_bytes + b' | ' + user_deposited
 
-
+    
         if value["type"] == 1:
             # byte string
-      
-            formatted_value = value["bytes"]
-            formatted[formatted_key] = formatted_value
+            if value['bytes'][-1] == "=":
+                base_64_decoded_address = base64.b64decode(value['bytes'])
+                formatted_value = encoding.encode_address(base_64_decoded_address)
+                formatted[formatted_key] = formatted_value
+            else:
+                formatted_value = value["bytes"]
+            
         else:
             # integer
             formatted[formatted_key] = value["uint"]

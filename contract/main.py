@@ -2,27 +2,11 @@
 
 
 from pyteal import *
+from .helper_functions import *
 
 
 def approval_program():
 
-
-    add_pool = Seq([
-
-        Return(Int(1))
-
-    ])
-
-
-
-    '''
-    BORROW ALGOS:
-    '''
-    borrow = Seq([
-
-        Return(Int(1))
-
-    ])
 
 
     '''
@@ -30,7 +14,8 @@ def approval_program():
     '''
     deposit = Seq([
 
-        Return(Int(1))
+        handle_deposit_function(),
+        Approve()
 
     ])
 
@@ -42,29 +27,21 @@ def approval_program():
             2) Borrow 
             3) Cash out 
     '''
-    '''
+    
     handle_noop = Cond(
-        [       Txn.application_args[0] == Bytes("add_pool"),  add_pool       ],
-        [       Txn.application_args[0] == Bytes("user_deposit"), deposit       ],
-        [       Txn.application_args[0] == Bytes("borrower_cashout"),  borrow       ],
-        
+        [       Txn.application_args[0] == Bytes("deposit"),  deposit       ]
     )
 
-    '''
-    handle_noop = Return(Int(1))
     
 
 
-  
-    '''
-    ON CREATION: 
-        - Does not do anything
-    '''
+    # On creation, the kyc_account (or creator account) is placed in global storage 
+    # Returns 1
     on_creation = Seq([
         
-        #App.globalPut(Bytes("Creator"), Txn.sender()),
-
-        Return(Int(1))
+        App.globalPut( Bytes("kyc_account"), Txn.sender() ),
+        Assert( Global.group_size() == Int(1)                              ),
+        Return( Int(1) )
     ])
 
 
@@ -74,9 +51,8 @@ def approval_program():
         - Does not do anything. 
     '''
     handle_optin = Seq([
-
-        Return(Int(1))
-
+        #handle_optin_func(),
+        Approve()
     ])
 
 
@@ -93,7 +69,12 @@ def approval_program():
     ON UPDATE: 
         - Check if the sender is the creator of the applicaiton  
     '''
-    handle_updateapp = Return(Int(1))
+    handle_updateapp = Seq([
+
+        handle_updateapp_function(),
+        Approve()
+        
+    ])
 
 
 
@@ -119,16 +100,14 @@ def approval_program():
     return program
 
 
-'''
-CLEAR STATE PROGRAM:
-
-    - Returns 0
-'''
+# Clears local state for the sender (not recommended as they will loose local variables 
+# that will affect their ability to retrieve their LCASA index tokens)
 def clear_state_program():
     program = Return(Int(1))
     return program
 
 
+# compile approval and clear_state programs, and write them to directory: casa/contract/raw_teal
 if __name__ == "__main__":
     with open("contract/raw_teal/casa_approval.teal", "w") as f:
         compiled = compileTeal(approval_program(), mode=Mode.Application, version=5)

@@ -62,7 +62,7 @@ def helper(
         rekey_to=None,
     )
 
-    msig = multisig()
+    msig = multisig('creator_multisig_accounts')
     # create a SignedTransaction object
     multisig_transaction = MultisigTransaction(txn, msig)
 

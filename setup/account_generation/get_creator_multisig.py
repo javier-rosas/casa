@@ -2,7 +2,7 @@ import json
 from algosdk.future.transaction import Multisig
 
 
-def multisig():
+def multisig(multisig_accounts):
     # open json file with address and mnemonic data
     f = open('keys.json')
     data = json.load(f)
@@ -12,9 +12,9 @@ def multisig():
     version = 1  # multisig version
     threshold = 1  # how many signatures are necessary
 
-    account_1 = data['creator_multisig_accounts']['creator_address_1']
+    account_1 = data[multisig_accounts]['creator_address_1']
 
-    account_2 = data['creator_multisig_accounts']['creator_address_2']
+    account_2 = data[multisig_accounts]['creator_address_2']
 
     msig = Multisig(version, threshold, [account_1, account_2])
 
@@ -22,6 +22,8 @@ def multisig():
     f.close()
 
     return msig
+
+#print(multisig('test_multisig_accounts').address())
 
 
 
