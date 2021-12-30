@@ -9,27 +9,35 @@ def approval_program():
 
 
 
-    '''
-    DEPOSIT ALGOS:
-    '''
-    deposit = Seq([
+    # send USDC to lender_usdc_pool
+    deposit_usdc = Seq([
 
-        handle_deposit_function(),
+        #deposit_usdc_func(),
         Approve()
 
     ])
 
 
-    '''
-    CALL APPLICATION:
-        - Conditional with 3 options: 
-            1) Deposit 
-            2) Borrow 
-            3) Cash out 
-    '''
+    # add a rekeyed pool to the global storage of the application
+    add_pool = Seq([
+
+        #add_pool_func(),
+        Approve()
+
+    ])
+
+
     
+    # call application. 
+    # conditional: 
+    #   1) Add pool (only kyc account can do this)
+    #   2) Deposit usdc (lenders send usdc to lender_usdc_pool)
     handle_noop = Cond(
-        [       Txn.application_args[0] == Bytes("deposit"),  deposit       ]
+
+        [       Txn.application_args[0] == Bytes("add_pool"),  add_pool                 ],
+
+        [       Txn.application_args[0] == Bytes("deposit_usdc"),   deposit_usdc        ]
+
     )
 
     
@@ -39,9 +47,12 @@ def approval_program():
     # Returns 1
     on_creation = Seq([
         
-        App.globalPut( Bytes("kyc_account"), Txn.sender() ),
         Assert( Global.group_size() == Int(1)                              ),
-        Return( Int(1) )
+
+        App.globalPut( Bytes("kyc_account"), Txn.sender()                  ),
+        App.globalPut( Bytes("rate"), Int(0)                               ),
+
+        Approve()
     ])
 
 
@@ -51,7 +62,7 @@ def approval_program():
         - Does not do anything. 
     '''
     handle_optin = Seq([
-        #handle_optin_func(),
+        #optin_func(),
         Approve()
     ])
 
@@ -71,7 +82,7 @@ def approval_program():
     '''
     handle_updateapp = Seq([
 
-        handle_updateapp_function(),
+        updateapp_func(),
         Approve()
         
     ])

@@ -100,6 +100,7 @@ def get_minted_asset_id(client, txid, creator_address, reserve_address):
         asset_id = ptx["asset-index"]
         print_created_asset(client, creator_address, asset_id)
         print_asset_holding(client, reserve_address, asset_id)
+        return asset_id
     except Exception as e:
         print(e)
 
@@ -232,6 +233,7 @@ def is_opted_in_asset(algod_client, asset_id, address):
     account_info = algod_client.account_info(address)
     holding = False
     idx = 0
+    
     for my_account_info in account_info['assets']:
         scrutinized_asset = account_info['assets'][idx]
         idx = idx + 1    
@@ -267,6 +269,7 @@ def delete_all_apps_from_account(client, address, private_key, delete_app):
 
 
 
+
 def delete_all_apps_from_account_except_last(client, address, private_key, delete_app):
 
     account_info = client.account_info(address)
@@ -278,6 +281,15 @@ def delete_all_apps_from_account_except_last(client, address, private_key, delet
     app_id = account_info['created-apps'][-1]['id']
 
     print("Deleted all apps from account:", address, "except last app_id:", app_id, "app_address:", application_address)
+
+
+
+def delete_asset_except(client, asset_id, private_key, address, close_out):
+    for asset in client.account_info(address)['assets']:
+        print(asset)
+        #print(asset['id'], type(asset['id']))
+        #if asset['id'] == asset_id:
+        #    print(True)
 
 
 

@@ -50,7 +50,7 @@ def generate_new_application_accounts():
         data["payback_pool_mnemonic"] = payback_pool_mnemonic
 
         jsonFile.seek(0)  # bring cursor to the top
-        json.dump(data, jsonFile)
+        json.dump(data, jsonFile, indent = 6)
         jsonFile.truncate()
 
-generate_algorand_keypair()
+

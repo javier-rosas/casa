@@ -1,10 +1,13 @@
 import sys
 import os
+import json 
 
 from algosdk import logic
 from algosdk.future import transaction
 from algosdk.future.transaction import  MultisigTransaction
 
+
+from .account_generation.create_account import generate_new_application_accounts
 
 
 
@@ -92,6 +95,18 @@ def helper(
     # application address
     application_address = logic.get_application_address(app_id)
 
+    with open("keys.json", "r+") as jsonFile:
+        data = json.load(jsonFile)
+
+        data['app_id'] = app_id
+        data['app_address'] = application_address
+
+        jsonFile.seek(0)  # bring cursor to the top
+        json.dump(data, jsonFile, indent = 6)
+        jsonFile.truncate()
+
+    generate_new_application_accounts()
+
 
     # return application_id and application_address
     return (app_id, application_address)
@@ -100,9 +115,9 @@ def helper(
 def create_app(algod_client, creator_address, creator_private_key):
 
     # declare application state storage (immutable)
-    local_ints = 6
+    local_ints = 10
     local_bytes = 0
-    global_ints = 1
+    global_ints = 3
     global_bytes = 3
     global_schema = transaction.StateSchema(global_ints, global_bytes)
     local_schema = transaction.StateSchema(local_ints, local_bytes)
