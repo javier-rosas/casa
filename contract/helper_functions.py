@@ -85,7 +85,61 @@ def add_pool_func(pool_name: TealType.bytes, address: TealType.bytes, ):
 
 
 
+# 
+@Subroutine(TealType.uint64)
+def timelock_func():
 
+    #one_day = Int(86400)
+    one_day = Int(10)
+    latest_timestamp = Global.latest_timestamp()
+    latest_timestamp_plus_a_day = Global.latest_timestamp() + one_day
+    get_user_timestamp = App.localGet(Txn.sender(), Bytes("user_timestamp"))
+    put_user_timestamp = App.localPut(Txn.sender(), Bytes("user_timestamp"), latest_timestamp_plus_a_day)
+
+    return Seq([
+            
+            If(get_user_timestamp == Int(0))
+
+                .Then(
+
+                    Seq([
+                        put_user_timestamp,
+                        Return( Int(0) ) 
+                    ]))
+
+            .ElseIf( get_user_timestamp != Int(0) )
+
+                .Then(
+
+                    If( get_user_timestamp - one_day > latest_timestamp )
+
+                        .Then(
+
+                            Seq([
+                                Log( Bytes("need to wait") ),
+                                Return( Int(0) )
+                            ])
+                        )
+
+                    .Else(
+
+                        If( get_user_timestamp - one_day <= latest_timestamp )
+
+                            .Then(
+
+                                Seq([
+                                    Log( Bytes("good to go!") ),
+                                    put_user_timestamp,
+                                    Return( Int(1) )
+                                ])
+                            )
+                    )
+                ),
+
+                Return( Int(0) )
+                    
+                
+    ])
 
     
 

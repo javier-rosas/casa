@@ -24,8 +24,10 @@ def clear_app(client, private_key, index):
     client.send_transactions([signed_txn])
 
     # await confirmation
-    wait_for_confirmation(client, tx_id)
+    result = wait_for_confirmation(client, tx_id)
 
     # display results
     transaction_response = client.pending_transaction_info(tx_id)
-    print("Cleared app-id:", transaction_response["txn"]["txn"]["apid"])
+    print("Cleared app-id:", transaction_response["txn"]["txn"]["apid"], "for address", sender)
+
+    return result

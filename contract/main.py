@@ -27,6 +27,28 @@ def approval_program():
     ])
 
 
+    @Subroutine(TealType.none)
+    def timelock_func_1():
+
+        ttt = timelock_func()
+        ttt_bytes = Itob(ttt)
+        return Seq([
+
+            
+            Log(ttt_bytes),
+        
+
+        ])
+
+    timelock = Seq([
+
+        timelock_func_1(),
+        Approve()
+        
+
+    ])
+
+
     
     # call application. 
     # conditional: 
@@ -36,7 +58,7 @@ def approval_program():
 
         [       Txn.application_args[0] == Bytes("add_pool"),  add_pool                 ],
 
-        [       Txn.application_args[0] == Bytes("deposit_usdc"),   deposit_usdc        ]
+        [       Txn.application_args[0] == Bytes("timelock"),   timelock        ]
 
     )
 
