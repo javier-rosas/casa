@@ -147,10 +147,25 @@ def print_single_log(log):
     integer = int(strlog.hex(), 16)
 
     # string
-    string = base64.b64decode(log).decode('UTF-8')
+    try: 
+        formatted_value = base64.b64decode(log).decode('UTF-8')
+
+    except UnicodeDecodeError:
+
+        base_64_decoded_address = base64.b64decode(log.encode())
+
+        if len(bytearray(base_64_decoded_address)) == 32:
+            formatted_value = encoding.encode_address(base_64_decoded_address)
+
+        elif len(bytearray(base_64_decoded_address)) == 58:
+            formatted_value = base_64_decoded_address.decode()
+
+        else:
+            formatted_value = log.encode()
+
 
     # print
-    dictionary = {"Int": integer, "String": string}
+    dictionary = {"Int": integer, "String": formatted_value}
 
     print(dictionary) 
 
@@ -171,15 +186,15 @@ def format_state(state):
     for item in state:
         key = item["key"]
         value = item["value"]
+
+
         try: 
 
             formatted_key = base64.b64decode(key).decode("utf-8")
-
             
         except UnicodeDecodeError: 
-
+          
             formatted_key = base64.b64decode(key)
-
             lst = formatted_key.split(b' | ')
 
             key_32_bytes = lst[0]
@@ -196,6 +211,8 @@ def format_state(state):
             
                 base_64_decoded_address = base64.b64decode(value['bytes'])
 
+                
+
                 if len(bytearray(base_64_decoded_address)) == 32:
                     formatted_value = encoding.encode_address(base_64_decoded_address)
                     formatted[formatted_key] = formatted_value
@@ -207,7 +224,9 @@ def format_state(state):
             
         else:
             # integer
+            
             formatted[formatted_key] = value["uint"]
+
     return formatted
 
 
@@ -215,12 +234,13 @@ def format_state(state):
 # read user local state
 def read_local_state(client, addr, app_id):
     results = client.account_info(addr)
+ 
     for local_state in results["apps-local-state"]:
         if local_state["id"] == app_id:
             if "key-value" not in local_state:
-                
+
                 return {}
-            
+           
             return format_state(local_state["key-value"])
     return {}
 

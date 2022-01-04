@@ -5,14 +5,20 @@ def add_pool(
     app_args, 
     creator_address, 
     creator_private_key, 
+    #accounts,
     app_id):
 
 
-    # arg list 0 index = add_pool_arg, 1 index = pool_name_arg, 2 index = pool_name_address_arg
-    args = app_args
 
     # call app with msig=True (manager address is a multisig account)
-    result = call_app(client, creator_address, creator_private_key, app_id, args, msig=True)    
+    result = call_app(
+                    client=client, 
+                    creator_address=creator_address, 
+                    private_key=creator_private_key, 
+                    index=app_id, 
+                    #accounts=accounts,
+                    app_args=app_args, 
+                    msig=True)    
 
     return result 
 

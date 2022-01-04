@@ -5,7 +5,14 @@ from algosdk.future.transaction import  MultisigTransaction
 from .helper_functions import wait_for_confirmation
 
 # call application
-def call_app(client, creator_address, private_key, index, app_args, msig=False):
+def call_app(
+            client, 
+            creator_address, 
+            private_key, 
+            index, 
+            app_args, 
+            msig=False, 
+            accounts=None):
 
     if not msig:
         # declare sender
@@ -50,7 +57,17 @@ def call_app(client, creator_address, private_key, index, app_args, msig=False):
         params = client.suggested_params()
     
         # create unsigned transaction
-        txn = transaction.ApplicationNoOpTxn(sender, params, index, app_args)
+        txn = transaction.ApplicationNoOpTxn(
+                                            sender=sender,
+                                            sp=params,
+                                            index=index,
+                                            app_args=app_args,
+                                            accounts=accounts,
+                                            foreign_apps=None,
+                                            foreign_assets=None,
+                                            note=None,
+                                            lease=None,
+                                            rekey_to=None)
 
         multisig_object = multisig('creator_multisig_accounts')
 

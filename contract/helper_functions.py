@@ -96,45 +96,59 @@ def deposit_usdc_func(pool_address: TealType.bytes, amount: TealType.uint64):
 
 
 @Subroutine(TealType.none)
-def loop_over_app_args():
+def put_pool_args():
+    """
+    put_pool_args: 
 
-    app_args_length = Txn.application_args.length()
-    pool_name = Txn.application_args[1]
-    pool_address = Txn.application_args[2]
+        - stores pool variables in global & local storage
 
-    i = ScratchVar(TealType.uint64)
+        - Returns: None
+    """
+
+    #pool_name1 = Bytes("index_token_reserve_pool")
+    #pool_address1 = Addr("LHE22LZPRYHJ5HCGT6H3OTABSXJ5LEYYZ52AGWVYEXL2TZUCU4JYBJIAIY")
+
+    pool_name1 = Bytes("index_token_active_pool")
+    pool_address1 = Addr("OEICLDWG3QVAMIWSF5X7KMTIYVXIU54SLKAZIETHFETPTUKV7BG3GVUKQ4")
+
+
+    #in_key = Bytes("in")
+    #in_value = Int(0)
+
+    #in_to_drop_key = Bytes("in_to_drop")
+    #in_to_drop_value = Int(0)
+
+    #out_key = Bytes("out")
+    #out_value = Int(0)
+ 
+    #goal_key = Bytes("goal") 
+    #goal_value = Int(0) 
+
+
+    #curr_amount_key = Bytes("curr_amount")
+    #curr_amount_value = Int(0)
+
+
+    #local_rate_key = Bytes("local_rate")
+    #local_rate_value = Int(0)
+
+
+
 
     return Seq([
 
+        App.globalPut(pool_name1, pool_address1 ),
 
-        App.globalPut( pool_name, pool_address ),
+        #App.globalPut(pool_name2, pool_address1 ),
 
-        
-        i.store(Int(3)),
-        While(i.load() < ( app_args_length - Int(1) ) ).Do(Seq([
-            #Log(pool_address),
-            App.localPut(pool_address, Txn.application_args[i.load()], Txn.application_args[i.load() + Int(1) ]),
-        
-            If( Mod(i.load(), Int(2) ) == Int(0) )
-                .Then(
-                    
-                    Seq([i.store(i.load() + Int(1)),
 
-                    ])
-            )
-            .Else(
-                
-                Seq([i.store(i.load() + Int(2)),
-                
-                ])
-            )
-            
-            
 
-        ])),
-    
+        #App.localPut(pool_address, in_key , in_value ),
 
-        # 
+        #App.localPut(pool_address, in_to_drop_key , in_to_drop_value ),
+
+        #App.localPut(pool_address, out_key , out_value ),
+
 
         Return()
     ])
@@ -156,7 +170,7 @@ def add_pool_func():
     return Seq([
         Assert( is_sender_kyc_account == Int(1) ),
         Assert( Global.group_size() == Int(1)   ),
-        loop_over_app_args(),
+        put_pool_args(),
 
         Return()
     ])

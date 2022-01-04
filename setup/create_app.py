@@ -114,10 +114,10 @@ def helper(
 def create_app(algod_client, creator_address, creator_private_key):
 
     # declare application state storage (immutable)
-    local_ints = 10
-    local_bytes = 0
-    global_ints = 3
-    global_bytes = 3
+    local_ints = 8
+    local_bytes = 8
+    global_ints = 8
+    global_bytes = 8
     global_schema = transaction.StateSchema(global_ints, global_bytes)
     local_schema = transaction.StateSchema(local_ints, local_bytes)
 
