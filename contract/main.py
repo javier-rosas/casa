@@ -10,7 +10,7 @@ def approval_program():
 
 
     # send USDC to lender_usdc_pool
-    deposit_usdc = Seq([
+    lender_deposit_usdc = Seq([
 
         #deposit_usdc_func(),
         Approve()
@@ -20,34 +20,10 @@ def approval_program():
 
     # add a rekeyed pool to the global storage of the application
     add_pool = Seq([
-
-        #add_pool_func(),
+        add_pool_func(),
         Approve()
 
     ])
-
-
-    @Subroutine(TealType.none)
-    def timelock_func_1():
-
-        ttt = timelock_func()
-        ttt_bytes = Itob(ttt)
-        return Seq([
-
-            
-            Log(ttt_bytes),
-        
-
-        ])
-
-    timelock = Seq([
-
-        timelock_func_1(),
-        Approve()
-        
-
-    ])
-
 
     
     # call application. 
@@ -55,13 +31,9 @@ def approval_program():
     #   1) Add pool (only kyc account can do this)
     #   2) Deposit usdc (lenders send usdc to lender_usdc_pool)
     handle_noop = Cond(
-
-        [       Txn.application_args[0] == Bytes("add_pool"),  add_pool                 ],
-
-        [       Txn.application_args[0] == Bytes("timelock"),   timelock        ]
-
+        [       Txn.application_args[0] == Bytes("add_pool"),  add_pool                            ],
+        [       Txn.application_args[0] == Bytes("lender_deposit_usdc"), lender_deposit_usdc       ],
     )
-
     
 
 
@@ -71,8 +43,9 @@ def approval_program():
         
         Assert( Global.group_size() == Int(1)                              ),
 
+        Assert( Txn.application_args.length() == Int(0)                    ),
+
         App.globalPut( Bytes("kyc_account"), Txn.sender()                  ),
-        App.globalPut( Bytes("rate"), Int(0)                               ),
 
         Approve()
     ])
@@ -115,7 +88,12 @@ def approval_program():
     ON DELETE:
         - Does not do anything
     '''
-    handle_deleteapp = Return(Int(1))
+    handle_deleteapp = Seq([
+
+        updateapp_func(),
+        Approve()
+
+    ])
 
 
 

@@ -19,12 +19,21 @@ def compile_approval_program(algod_client):
     from contract.main import approval_program
     sys.path.remove(curr_dir)
     
+
+
     # get PyTeal approval program
     approval_program_ast = approval_program()
     # compile program to TEAL assembly
     approval_program_teal = compileTeal(approval_program_ast, mode=Mode.Application, version=5)
     # compile program to binary
     approval_program_compiled = compile_program(algod_client, approval_program_teal)
+
+
+    # write approval program to directory: casa/contract/raw_teal
+    if __name__ == "__main__":
+        with open("contract/raw_teal/casa_approval.teal", "w") as f:
+            
+            f.write(approval_program_teal)
 
     return approval_program_compiled
 
@@ -44,6 +53,12 @@ def compile_clear_state_program(algod_client):
     clear_state_program_teal = compileTeal(clear_state_program_ast, mode=Mode.Application, version=5)
     # compile program to binary
     clear_state_program_compiled = compile_program(algod_client, clear_state_program_teal)
+
+        # write approval program to directory: casa/contract/raw_teal
+    if __name__ == "__main__":
+        with open("contract/raw_teal/casa_approval.teal", "w") as f:
+            
+            f.write(clear_state_program_teal)
 
     return clear_state_program_compiled
 
@@ -146,8 +161,9 @@ def print_logs(result):
         print("\nLogs:\n")
         for log in result['logs']:
             print_single_log(log)
+        print()
     except KeyError: 
-        print("No logs during this runtime.")
+        print("No logs during this runtime.\n")
 
 
 def format_state(state):
@@ -177,11 +193,17 @@ def format_state(state):
         if value["type"] == 1:
             # byte string
             if value['bytes'][-1] == "=":
+            
                 base_64_decoded_address = base64.b64decode(value['bytes'])
-                formatted_value = encoding.encode_address(base_64_decoded_address)
-                formatted[formatted_key] = formatted_value
-            else:
-                formatted_value = value["bytes"]
+
+                if len(bytearray(base_64_decoded_address)) == 32:
+                    formatted_value = encoding.encode_address(base_64_decoded_address)
+                    formatted[formatted_key] = formatted_value
+                elif len(bytearray(base_64_decoded_address)) == 58:
+                    formatted_value = base_64_decoded_address.decode()
+                    formatted[formatted_key] = formatted_value
+                else:
+                    formatted_value = value["bytes"]
             
         else:
             # integer
@@ -211,6 +233,8 @@ def read_global_state(client, addr, app_id):
     for app in apps_created:
         if app["id"] == app_id:
             try:
+                #print(app["params"]["global-state"])
+                
                 return format_state(app["params"]["global-state"])
             except KeyError: 
                 return "No global state at this time."

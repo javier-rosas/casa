@@ -2,43 +2,146 @@
 txn ApplicationID
 int 0
 ==
-bnz main_l12
+bnz main_l16
 txn OnCompletion
 int OptIn
 ==
-bnz main_l11
+bnz main_l15
 txn OnCompletion
 int CloseOut
 ==
-bnz main_l10
+bnz main_l14
 txn OnCompletion
 int UpdateApplication
 ==
-bnz main_l9
+bnz main_l13
 txn OnCompletion
 int DeleteApplication
 ==
-bnz main_l8
+bnz main_l12
 txn OnCompletion
 int NoOp
 ==
 bnz main_l7
 err
 main_l7:
-int 1
-return
-main_l8:
-int 1
-return
-main_l9:
-int 1
-return
+txna ApplicationArgs 0
+byte "add_pool"
+==
+bnz main_l11
+txna ApplicationArgs 0
+byte "lender_deposit_usdc"
+==
+bnz main_l10
+err
 main_l10:
 int 1
 return
 main_l11:
+txna ApplicationArgs 1
+txna ApplicationArgs 2
+callsub sub3
 int 1
 return
 main_l12:
+callsub sub2
 int 1
 return
+main_l13:
+callsub sub2
+int 1
+return
+main_l14:
+int 0
+return
+main_l15:
+callsub sub1
+int 1
+return
+main_l16:
+global GroupSize
+int 1
+==
+assert
+txn NumAppArgs
+int 0
+==
+assert
+byte "kyc_account"
+txn Sender
+app_global_put
+int 1
+return
+sub0: // is_creator
+store 0
+load 0
+byte "kyc_account"
+app_global_get
+==
+retsub
+sub1: // optin_func
+global GroupSize
+int 2
+==
+assert
+gtxn 0 Sender
+callsub sub0
+int 1
+==
+assert
+gtxn 0 NumAppArgs
+int 0
+==
+assert
+gtxn 0 NumApplications
+int 0
+==
+assert
+gtxn 0 NumAccounts
+int 0
+==
+assert
+gtxn 1 NumAppArgs
+int 0
+==
+assert
+gtxn 1 NumApplications
+int 0
+==
+assert
+gtxn 1 NumAccounts
+int 0
+==
+assert
+gtxn 1 Sender
+byte "kyc_approved"
+int 1
+app_local_put
+retsub
+sub2: // updateapp_func
+txn Sender
+callsub sub0
+int 1
+==
+assert
+global GroupSize
+int 1
+==
+assert
+retsub
+sub3: // add_pool_func
+store 2
+store 1
+txn Sender
+callsub sub0
+int 1
+==
+assert
+global GroupSize
+int 1
+==
+assert
+load 1
+load 2
+app_global_put
+retsub

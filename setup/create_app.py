@@ -7,7 +7,6 @@ from algosdk.future import transaction
 from algosdk.future.transaction import  MultisigTransaction
 
 
-from .account_generation.create_account import generate_new_application_accounts
 
 
 
@@ -46,7 +45,7 @@ def helper(
     sender = creator_address
 
     # declare on_complete as NoOp
-    on_complete = transaction.OnComplete.NoOpOC.real
+    on_complete = transaction.OnComplete.OptInOC.real
 
     # get node suggested parameters
     params = client.suggested_params()
@@ -105,7 +104,7 @@ def helper(
         json.dump(data, jsonFile, indent = 6)
         jsonFile.truncate()
 
-    generate_new_application_accounts()
+    
 
 
     # return application_id and application_address

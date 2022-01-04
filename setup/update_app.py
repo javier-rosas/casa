@@ -68,6 +68,7 @@ def helper(
 
     # sign transaction
     multisig_transaction.sign(private_key)
+    
     tx_id = multisig_transaction.transaction.get_txid()
 
     # send transaction

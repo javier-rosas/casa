@@ -1,31 +1,77 @@
-from algosdk.future import transaction
 from algosdk import account
+from algosdk.future import transaction
+from algosdk.future.transaction import  MultisigTransaction
+
 from .helper_functions import wait_for_confirmation
 
 # call application
-def call_app(client, private_key, index, app_args):
-    # declare sender
-    sender = account.address_from_private_key(private_key)
-    print("Call from account:", sender)
+def call_app(client, creator_address, private_key, index, app_args, msig=False):
 
-    # get node suggested parameters
-    params = client.suggested_params()
-    # comment out the next two (2) lines to use suggested fees
-    params.flat_fee = True
-    params.fee = 1000
+    if not msig:
+        # declare sender
+        sender = account.address_from_private_key(private_key)
+        print("Call from account:", sender)
 
-    # create unsigned transaction
-    txn = transaction.ApplicationNoOpTxn(sender, params, index, app_args)
+        # get node suggested parameters
+        params = client.suggested_params()
+    
+        # create unsigned transaction
+        txn = transaction.ApplicationNoOpTxn(sender, params, index, app_args)
 
-    # sign transaction
-    signed_txn = txn.sign(private_key)
-    tx_id = signed_txn.transaction.get_txid()
+        # sign transaction
+        signed_txn = txn.sign(private_key)
+        tx_id = signed_txn.transaction.get_txid()
 
-    # send transaction
-    client.send_transactions([signed_txn])
+        # send transaction
+        client.send_transactions([signed_txn])
 
-    # await confirmation
-    result = wait_for_confirmation(client, tx_id)
+        # await confirmation
+        result = wait_for_confirmation(client, tx_id)
 
-    return result
+        return result
+
+    if msig: 
+        import sys
+        import os
+
+        # get current working directory
+        curr_dir = os.getcwd()
+        # setup/account_generation/generate_creator_multisig.py import multisig
+        sys.path.append(curr_dir + '/setup/')
+        from account_generation.get_creator_multisig import multisig
+        sys.path.remove(curr_dir + '/setup/')
+        
+
+        # declare sender
+        sender = creator_address
+        print("Call from account:", sender)
+
+        # get node suggested parameters
+        params = client.suggested_params()
+    
+        # create unsigned transaction
+        txn = transaction.ApplicationNoOpTxn(sender, params, index, app_args)
+
+        multisig_object = multisig('creator_multisig_accounts')
+
+        # create a SignedTransaction object
+        multisig_transaction = MultisigTransaction(txn, multisig_object)
+
+        # sign transaction
+        multisig_transaction.sign(private_key)
+
+        tx_id = multisig_transaction.transaction.get_txid()
+
+        # send transaction
+        client.send_transactions([multisig_transaction])
+
+        # await confirmation
+        result = wait_for_confirmation(client, tx_id)
+
+        # transaction response
+        client.pending_transaction_info(tx_id)
+
+
+        return result
+
 
