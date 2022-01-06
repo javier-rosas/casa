@@ -30,10 +30,10 @@ sys.path.remove(curr_dir + '/setup/')
 def helper(
     client,
     creator_address,
-    private_key,
     approval_program,
     clear_program,
-    app_id
+    app_id,
+    creator_private_key_list:list
 ):
 
 
@@ -62,12 +62,15 @@ def helper(
         rekey_to=None,
     )
 
-    msig = multisig('creator_multisig_accounts')
+    msig = multisig(creator=True)
+
+    
     # create a SignedTransaction object
     multisig_transaction = MultisigTransaction(txn, msig)
 
     # sign transaction
-    multisig_transaction.sign(private_key)
+    for private_key in creator_private_key_list: 
+        multisig_transaction.sign(private_key)
     
     tx_id = multisig_transaction.transaction.get_txid()
 
@@ -90,7 +93,7 @@ def helper(
     return result
 
 
-def update_app(algod_client, creator_address, creator_private_key, app_id):
+def update_app(algod_client, creator_address, creator_private_key_list, app_id):
 
    
     approval_program_compiled = compile_approval_program(algod_client)
@@ -102,10 +105,10 @@ def update_app(algod_client, creator_address, creator_private_key, app_id):
     helper(
         algod_client,
         creator_address,
-        creator_private_key,
         approval_program_compiled,
         clear_state_program_compiled,
-        app_id
+        app_id,
+        creator_private_key_list=creator_private_key_list
     )
 
     return app_id

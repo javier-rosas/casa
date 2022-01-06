@@ -4,9 +4,10 @@ def add_pool(
     client, 
     app_args, 
     creator_address, 
-    creator_private_key, 
-    #accounts,
-    app_id):
+    app_id,
+    creator_private_key_list,
+    accounts=None,
+    ):
 
 
 
@@ -14,11 +15,13 @@ def add_pool(
     result = call_app(
                     client=client, 
                     creator_address=creator_address, 
-                    private_key=creator_private_key, 
                     index=app_id, 
-                    #accounts=accounts,
                     app_args=app_args, 
-                    msig=True)    
+                    creator_private_key_list=creator_private_key_list,
+                    creator=True,
+                    msig=True,
+                    accounts=accounts
+                    )    
 
     return result 
 

@@ -32,12 +32,12 @@ sys.path.remove(curr_dir + '/setup/')
 def helper(
     client,
     creator_address,
-    private_key,
     approval_program,
     clear_program,
     global_schema,
     local_schema,
-    extra_pages
+    extra_pages,
+    creator_private_key_list:list,
 ):
 
   
@@ -53,30 +53,31 @@ def helper(
 
     # create unsigned transaction
     txn = transaction.ApplicationCreateTxn(
-            
-        sender,
-        params,
-        on_complete,
-        approval_program,
-        clear_program,
-        global_schema,
-        local_schema,
-        app_args=None,
-        accounts=None,
-        foreign_apps=None,
-        foreign_assets=None,
-        note=None,
-        lease=None,
-        rekey_to=None,
-        extra_pages=extra_pages,
-    )
+                                        sender,
+                                        params,
+                                        on_complete,
+                                        approval_program,
+                                        clear_program,
+                                        global_schema,
+                                        local_schema,
+                                        app_args=None,
+                                        accounts=None,
+                                        foreign_apps=None,
+                                        foreign_assets=None,
+                                        note=None,
+                                        lease=None,
+                                        rekey_to=None,
+                                        extra_pages=extra_pages,
+                                        )
 
-    msig = multisig('creator_multisig_accounts')
+    msig = multisig(creator=True)
     # create a SignedTransaction object
     multisig_transaction = MultisigTransaction(txn, msig)
 
     # sign transaction
-    multisig_transaction.sign(private_key)
+    for private_key in creator_private_key_list: 
+        multisig_transaction.sign(private_key)
+        
     tx_id = multisig_transaction.transaction.get_txid()
 
     # send transaction
@@ -111,7 +112,7 @@ def helper(
     return (app_id, application_address)
 
 
-def create_app(algod_client, creator_address, creator_private_key):
+def create_app(algod_client, creator_address, creator_private_key_list):
 
     # declare application state storage (immutable)
     local_ints = 8
@@ -131,12 +132,12 @@ def create_app(algod_client, creator_address, creator_private_key):
     app_id = helper(
         algod_client,
         creator_address,
-        creator_private_key,
         approval_program_compiled,
         clear_state_program_compiled,
         global_schema,
         local_schema,
-        extra_pages=3
+        extra_pages=3,
+        creator_private_key_list=creator_private_key_list,
     )
 
     return app_id

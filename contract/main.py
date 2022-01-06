@@ -45,8 +45,6 @@ def approval_program():
 
         Assert( Txn.application_args.length() == Int(0)                    ),
 
-        App.globalPut( Bytes("kyc_account"), Txn.sender()                  ),
-
         Approve()
     ])
 

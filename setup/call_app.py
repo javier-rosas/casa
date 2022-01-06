@@ -8,13 +8,16 @@ from .helper_functions import wait_for_confirmation
 def call_app(
             client, 
             creator_address, 
-            private_key, 
             index, 
             app_args, 
+            creator_private_key_list:list,
+            creator:bool,
             msig=False, 
             accounts=None):
 
     if not msig:
+
+        private_key = creator_private_key_list[0]
         # declare sender
         sender = account.address_from_private_key(private_key)
         print("Call from account:", sender)
@@ -69,13 +72,14 @@ def call_app(
                                             lease=None,
                                             rekey_to=None)
 
-        multisig_object = multisig('creator_multisig_accounts')
+        multisig_object = multisig(creator)
 
         # create a SignedTransaction object
         multisig_transaction = MultisigTransaction(txn, multisig_object)
 
         # sign transaction
-        multisig_transaction.sign(private_key)
+        for private_key in creator_private_key_list: 
+            multisig_transaction.sign(private_key)
 
         tx_id = multisig_transaction.transaction.get_txid()
 

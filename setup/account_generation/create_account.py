@@ -53,4 +53,3 @@ def generate_new_application_accounts():
         json.dump(data, jsonFile, indent = 6)
         jsonFile.truncate()
 
-
